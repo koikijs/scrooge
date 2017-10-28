@@ -64,7 +64,7 @@
 }
 ```
 
-### PUT /events/{eventId}/scrooges/{scroogeId}
+### PATCH /events/{eventId}/scrooges/{scroogeId}
 ```
 {
     "memberName": "Nabnab", ... (required)
