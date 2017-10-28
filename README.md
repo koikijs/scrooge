@@ -49,6 +49,30 @@
 }
 ```
 
+### GET /events/{eventId}/_func/aggPaidAmountGroupByMemberName
+```
+{
+    "name": "Koiki Camp",
+    "createdAt": "2017-10-28T11:13:25Z",
+    "updatedAt": "2017-10-28T11:13:25Z",
+    "scrooges": [
+        {
+            "memberName": "Nabnab",
+            "paidAmount": 200,
+            "forWhat": "rent-a-car",
+            "createdAt": "2017-10-28T11:13:25Z",
+            "updatedAt": "2017-10-28T11:13:25Z"
+        }
+    ],
+    "aggPaidAmount": [
+        {
+            "memberName": "Nabnab",
+            "totalPaidAmount": 200
+        }
+    ]
+}
+```
+
 ### POST /events/{eventId}/scrooges
 ```
 {
@@ -72,3 +96,14 @@
 ```
 
 ## WebSocket
+```
+{
+    “uri”: “/events”,
+    “method”: “POST”,
+    “body”: {
+        "name": "Koiki Camp",
+        "createdAt": "2017-10-28T11:13:25Z",
+        "updatedAt": "2017-10-28T11:13:25Z"
+    }
+}
+```
