@@ -65,7 +65,7 @@
 }
 ```
 
-### PATCH /events/{eventId}/scrooges/{scroogeId}
+### PATCH /scrooges/{scroogeId}
 ```
 {
     "memberName": "Nabnab", ... (required)
@@ -73,6 +73,9 @@
     "forWhat": "rent-a-car" ... (optional)
 }
 ```
+
+### DELETE /scrooges/{scroogeId}
+No body
 
 ## WebSocket
 This API sends broadcast to all users who have same eventId when resource is updated.
