@@ -9,6 +9,7 @@
     "updatedAt": "2017-10-28T11:13:25Z"
 }
 ```
+
 ### scrooge
 ```
 {
@@ -21,35 +22,16 @@
     "updatedAt": "2017-10-28T11:13:25Z"
 }
 ```
+
 ## Endpoint
 ### POST /events
 ```
 {
-    "name": "Koiki Camp",
-    "createdAt": "2017-10-28T11:13:25Z",
-    "updatedAt": "2017-10-28T11:13:25Z"
+    "name": "Koiki Camp"    ... (required)
 }
 ```
 
 ### GET /events/{eventId}
-```
-{
-    "name": "Koiki Camp",
-    "createdAt": "2017-10-28T11:13:25Z",
-    "updatedAt": "2017-10-28T11:13:25Z",
-    "scrooges": [
-        {
-            "memberName": "Nabnab",
-            "paidAmount": 200,
-            "forWhat": "rent-a-car",
-            "createdAt": "2017-10-28T11:13:25Z",
-            "updatedAt": "2017-10-28T11:13:25Z"
-        }
-    ]
-}
-```
-
-### GET /events/{eventId}/_func/aggPaidAmountGroupByMemberName
 ```
 {
     "name": "Koiki Camp",
@@ -76,34 +58,30 @@
 ### POST /events/{eventId}/scrooges
 ```
 {
-    "memberName": "Nabnab",
-    "paidAmount": 200,
-    "forWhat": "rent-a-car",
-    "createdAt": "2017-10-28T11:13:25Z",
-    "updatedAt": "2017-10-28T11:13:25Z"
+    "memberName": "Nabnab", ... (required)
+    "paidAmount": 200,      ... (required)
+    "forWhat": "rent-a-car" ... (optional)
 }
 ```
 
 ### PUT /events/{eventId}/scrooges/{scroogeId}
 ```
 {
-    "memberName": "Nabnab",
-    "paidAmount": 200,
-    "forWhat": "rent-a-car",
-    "createdAt": "2017-10-28T11:13:25Z",
-    "updatedAt": "2017-10-28T11:13:25Z"
+    "memberName": "Nabnab", ... (required)
+    "paidAmount": 200,      ... (required)
+    "forWhat": "rent-a-car" ... (optional)
 }
 ```
 
 ## WebSocket
+This API sends broadcast to all users who have same eventId when resource is updated.
+
 ```
 {
     “uri”: “/events”,
     “method”: “POST”,
     “body”: {
-        "name": "Koiki Camp",
-        "createdAt": "2017-10-28T11:13:25Z",
-        "updatedAt": "2017-10-28T11:13:25Z"
+        "name": "Koiki Camp"
     }
 }
 ```
