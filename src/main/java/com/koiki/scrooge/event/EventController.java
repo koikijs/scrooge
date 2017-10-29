@@ -1,10 +1,13 @@
 package com.koiki.scrooge.event;
 
+import com.koiki.scrooge.scrooge.Scrooge;
+import com.koiki.scrooge.scrooge.ScroogeRepository;
 import java.net.URI;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,16 +20,21 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*") //TODO change origin to suitable one
 public class EventController {
 	private final EventRepository eventRepository;
+	private final ScroogeRepository scroogeRepository;
+	private final SimpMessagingTemplate simpMessagingTemplate;
 
 	@PostMapping
-	public ResponseEntity<?> post(@RequestBody Event event) {
+	public ResponseEntity<?> postEvent(@RequestBody Event event) {
 		Event savedEvent = eventRepository.save(event);
 
 		URI location = ServletUriComponentsBuilder
-				.fromCurrentRequest().path("/{id}")
-				.buildAndExpand(savedEvent.getId()).toUri();
+				.fromCurrentRequest()
+				.path("/{id}")
+				.buildAndExpand(savedEvent.getId())
+				.toUri();
 
 		return ResponseEntity.created(location).build();
 	}
@@ -38,6 +46,24 @@ public class EventController {
 					return ResponseEntity.ok().body(event);
 				})
 				.orElse(ResponseEntity.notFound().build());
+	}
+
+	@PostMapping("/{eventId}/scrooges")
+	public ResponseEntity<?> postScrooge(
+			@RequestBody Scrooge scrooge,
+			@PathVariable String eventId) {
+		scrooge.setEventId(eventId);
+		Scrooge savedScrooge = scroogeRepository.save(scrooge);
+
+		URI location = ServletUriComponentsBuilder
+				.fromCurrentRequest()
+				.path("/{scroogeId}")
+				.buildAndExpand(eventId, savedScrooge.getId())
+				.toUri();
+
+		simpMessagingTemplate.convertAndSend("/topic/" + eventId, "yeahhh!!!");
+
+		return ResponseEntity.created(location).build();
 	}
 }
 

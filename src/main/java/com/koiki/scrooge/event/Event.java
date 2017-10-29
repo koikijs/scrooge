@@ -13,6 +13,8 @@ public class Event {
 	@Id
 	private String id;
 	private String name;
+
+	//TODO change this to ZonedDateTime if possible
 	@CreatedDate
 	private LocalDateTime createdAt;
 	@LastModifiedDate

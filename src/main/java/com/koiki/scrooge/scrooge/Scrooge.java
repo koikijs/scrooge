@@ -1,11 +1,15 @@
 package com.koiki.scrooge.scrooge;
 
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@Document
 public class Scrooge {
 	@Id
 	private String id;
@@ -13,6 +17,10 @@ public class Scrooge {
 	private String memberName;
 	private BigDecimal paidAmount;
 	private String forWhat;
-	private ZonedDateTime createdAt;
-	private ZonedDateTime updatedAt;
+
+	//TODO change this to ZonedDateTime if possible
+	@CreatedDate
+	private LocalDateTime createdAt;
+	@LastModifiedDate
+	private LocalDateTime updatedAt;
 }
