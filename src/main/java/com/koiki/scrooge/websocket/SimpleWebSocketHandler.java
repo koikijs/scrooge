@@ -1,8 +1,10 @@
 package com.koiki.scrooge.websocket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -16,7 +18,9 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
  * http://www.devglan.com/spring-boot/spring-websocket-integration-example-without-stomp
  */
 @Component
+@RequiredArgsConstructor
 public class SimpleWebSocketHandler extends TextWebSocketHandler {
+	private final ObjectMapper objectMapper;
 
 	private ConcurrentHashMap<String, Set<WebSocketSession>> eventSessionPool = new ConcurrentHashMap<>();
 
@@ -36,14 +40,12 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 		});
 	}
 
+	/**
+	 * This method will be invoked when this API received a WebSocket message from clients.
+	 */
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-
-		String eventId = session.getUri().getQuery();
-
-		for (WebSocketSession eventSession : eventSessionPool.get(eventId)) {
-			eventSession.sendMessage(message);
-		}
+		// nothing to do
 	}
 
 	@Override
@@ -61,4 +63,13 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 			return sessions;
 		});
 	}
+
+	public void publishMessages(String eventId, Object object) throws Exception {
+		TextMessage message = new TextMessage(objectMapper.writeValueAsString(object));
+
+		for (WebSocketSession eventSession : eventSessionPool.get(eventId)) {
+			eventSession.sendMessage(new TextMessage("yume success"));
+		}
+	}
+
 }

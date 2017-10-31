@@ -1,6 +1,5 @@
 package com.koiki.scrooge.websocket;
 
-import com.koiki.scrooge.scrooge.ScroogeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,9 @@ public class TestController {
 	private final SimpleWebSocketHandler simpleWebSocketHandler;
 
 	@GetMapping("/{eventId}")
-	public ResponseEntity<?> get(@PathVariable String eventId) {
+	public ResponseEntity<?> get(@PathVariable String eventId) throws Exception {
+
+		simpleWebSocketHandler.publishMessages(eventId, null);
 
 		return ResponseEntity.ok().body(null);
 	}
