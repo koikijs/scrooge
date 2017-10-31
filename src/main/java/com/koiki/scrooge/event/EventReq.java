@@ -1,5 +1,6 @@
 package com.koiki.scrooge.event;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;

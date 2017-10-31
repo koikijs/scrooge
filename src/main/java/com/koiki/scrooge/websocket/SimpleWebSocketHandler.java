@@ -24,6 +24,7 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 
 	private ConcurrentHashMap<String, Set<WebSocketSession>> eventSessionPool = new ConcurrentHashMap<>();
 
+	//TODO send message (event data) to single connection after it is established
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
