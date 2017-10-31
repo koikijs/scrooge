@@ -3,6 +3,7 @@ package com.koiki.scrooge.event;
 import com.koiki.scrooge.scrooge.Scrooge;
 import com.koiki.scrooge.scrooge.ScroogeRepository;
 import java.net.URI;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +27,8 @@ public class EventController {
 	private final ScroogeRepository scroogeRepository;
 
 	@PostMapping
-	public ResponseEntity<?> postEvent(@RequestBody Event event) {
-		Event savedEvent = eventRepository.save(event);
+	public ResponseEntity<?> postEvent(@Valid @RequestBody EventReq eventReq) {
+		Event savedEvent = eventRepository.save(new Event(eventReq));
 
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequest()
@@ -51,6 +52,11 @@ public class EventController {
 	public ResponseEntity<?> postScrooge(
 			@RequestBody Scrooge scrooge,
 			@PathVariable String eventId) {
+
+		if (eventRepository.findById(eventId).isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+
 		scrooge.setEventId(eventId);
 		Scrooge savedScrooge = scroogeRepository.save(scrooge);
 
@@ -59,7 +65,7 @@ public class EventController {
 				.path("/{scroogeId}")
 				.buildAndExpand(eventId, savedScrooge.getId())
 				.toUri();
-		
+
 		return ResponseEntity.created(location).build();
 	}
 }
