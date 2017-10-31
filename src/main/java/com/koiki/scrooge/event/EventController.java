@@ -24,7 +24,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class EventController {
 	private final EventRepository eventRepository;
 	private final ScroogeRepository scroogeRepository;
-	private final SimpMessagingTemplate simpMessagingTemplate;
 
 	@PostMapping
 	public ResponseEntity<?> postEvent(@RequestBody Event event) {
@@ -60,9 +59,7 @@ public class EventController {
 				.path("/{scroogeId}")
 				.buildAndExpand(eventId, savedScrooge.getId())
 				.toUri();
-
-		simpMessagingTemplate.convertAndSend("/topic/" + eventId, "yeahhh!!!");
-
+		
 		return ResponseEntity.created(location).build();
 	}
 }
