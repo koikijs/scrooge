@@ -63,8 +63,7 @@ public class MyFilter implements Filter {
 					JsonSchemaGenerator schemaGen = new JsonSchemaGenerator(mapper);
 					JsonSchema schema = schemaGen.generateSchema(requestBodyClass);
 					String schemaString = mapper.writeValueAsString(schema);
-					log.info(schemaString);
-
+					
 					// return JSON Schema
 					response.getWriter().print(schemaString);
 				}
