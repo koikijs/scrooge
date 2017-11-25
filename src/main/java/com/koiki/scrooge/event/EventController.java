@@ -21,7 +21,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "Location", exposedHeaders = "Location") //TODO change origin to suitable one
+@CrossOrigin(
+		origins = "*",
+		allowedHeaders = {"Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location"},
+		exposedHeaders = {"Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location"}
+) //TODO change origin to suitable one
 public class EventController {
 	private final EventRepository eventRepository;
 	private final ScroogeRepository scroogeRepository;
