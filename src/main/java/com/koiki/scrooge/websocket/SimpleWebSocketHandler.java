@@ -68,8 +68,10 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 	public void publishMessages(String eventId, Object object) throws Exception {
 		TextMessage message = new TextMessage(objectMapper.writeValueAsString(object));
 
-		for (WebSocketSession eventSession : eventSessionPool.get(eventId)) { //TODO NullPointerException
-			eventSession.sendMessage(new TextMessage("yume success"));
+		if (!eventSessionPool.isEmpty()) {
+			for (WebSocketSession eventSession : eventSessionPool.get(eventId)) { //TODO NullPointerException
+				eventSession.sendMessage(new TextMessage("yume success"));
+			}
 		}
 	}
 
