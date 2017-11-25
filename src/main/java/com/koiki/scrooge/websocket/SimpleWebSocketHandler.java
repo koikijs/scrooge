@@ -1,10 +1,14 @@
 package com.koiki.scrooge.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.koiki.scrooge.event.EventRepository;
+import com.koiki.scrooge.event.EventRes;
+import com.koiki.scrooge.scrooge.ScroogeRepository;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -17,10 +21,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
  * http://blog.enjoyxstudy.com/entry/2017/05/10/000000
  * http://www.devglan.com/spring-boot/spring-websocket-integration-example-without-stomp
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SimpleWebSocketHandler extends TextWebSocketHandler {
 	private final ObjectMapper objectMapper;
+	private final EventRepository eventRepository;
+	private final ScroogeRepository scroogeRepository;
 
 	private ConcurrentHashMap<String, Set<WebSocketSession>> eventSessionPool = new ConcurrentHashMap<>();
 
@@ -36,6 +43,22 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 				sessions = new CopyOnWriteArraySet<>();
 			}
 			sessions.add(session);
+
+			EventRes eventRes = eventRepository.findById(eventId)
+					.map(event -> {
+						EventRes er = new EventRes(event);
+						er.setScrooges(scroogeRepository.findByEventId(event.getId()));
+						return er;
+					})
+					.orElse(new EventRes());
+			try {
+				String message = objectMapper.writeValueAsString(eventRes);
+
+				session.sendMessage(new TextMessage(message));
+
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
 
 			return sessions;
 		});
