@@ -3,9 +3,8 @@ spring:
   jackson.serialization:
     write_dates_as_timestamps: false
     indent_output: true
-  data.mongodb:
-    database: ${spring.application.name}
+#  data.mongodb:
 #    host: localhost
 #    port: 27017
 
-management.security.enabled: false
+management.security.enabled: true
