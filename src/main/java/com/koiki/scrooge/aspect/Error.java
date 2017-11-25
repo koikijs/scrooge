@@ -1,4 +1,4 @@
-package com.koiki.scrooge;
+package com.koiki.scrooge.aspect;
 
 import lombok.Builder;
 import lombok.Data;

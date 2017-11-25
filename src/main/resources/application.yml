@@ -7,3 +7,5 @@ spring:
     database: ${spring.application.name}
     host: localhost
     port: 27017
+
+management.security.enabled: false

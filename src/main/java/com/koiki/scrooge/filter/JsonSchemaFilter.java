@@ -1,4 +1,4 @@
-package com.koiki.scrooge;
+package com.koiki.scrooge.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
@@ -23,9 +23,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MyFilter implements Filter {
+public class JsonSchemaFilter implements Filter {
 	private final RequestMappingHandlerMapping handlerMapping;
-	private ObjectMapper mapper = new ObjectMapper();
+	private final ObjectMapper mapper;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException { }
@@ -63,7 +63,7 @@ public class MyFilter implements Filter {
 					JsonSchemaGenerator schemaGen = new JsonSchemaGenerator(mapper);
 					JsonSchema schema = schemaGen.generateSchema(requestBodyClass);
 					String schemaString = mapper.writeValueAsString(schema);
-					
+
 					// return JSON Schema
 					response.getWriter().print(schemaString);
 				}
@@ -77,13 +77,4 @@ public class MyFilter implements Filter {
 
 	@Override
 	public void destroy() { }
-
-	/**
-	 * You can set your own object mapper from super class
-	 *
-	 * @param mapper
-	 */
-	protected void setObjectMapper(ObjectMapper mapper) {
-		this.mapper = mapper;
-	}
 }
