@@ -2,6 +2,7 @@ package com.koiki.scrooge.event;
 
 import com.koiki.scrooge.scrooge.Scrooge;
 import com.koiki.scrooge.scrooge.ScroogeRepository;
+import com.koiki.scrooge.scrooge.ScroogeReq;
 import java.net.URI;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +23,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/events")
 @RequiredArgsConstructor
 @CrossOrigin(
-		origins = "*",
+		origins = "*", //TODO change origin to suitable one
 		allowedHeaders = {"Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location"},
 		exposedHeaders = {"Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location"}
-) //TODO change origin to suitable one
+)
 public class EventController {
 	private final EventRepository eventRepository;
 	private final ScroogeRepository scroogeRepository;
@@ -47,20 +48,23 @@ public class EventController {
 	public ResponseEntity<?> get(@PathVariable String eventId) {
 		return eventRepository.findById(eventId)
 				.map(event -> {
-					return ResponseEntity.ok().body(event);
+					EventRes eventRes = new EventRes(event);
+					eventRes.setScrooges(scroogeRepository.findByEventId(event.getId()));
+					return ResponseEntity.ok().body(eventRes);
 				})
 				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@PostMapping("/{eventId}/scrooges")
 	public ResponseEntity<?> postScrooge(
-			@RequestBody Scrooge scrooge,
+			@RequestBody ScroogeReq scroogeReq,
 			@PathVariable String eventId) {
 
-		if (eventRepository.findById(eventId).isPresent()) {
+		if (!eventRepository.findById(eventId).isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
 
+		Scrooge scrooge = new Scrooge(scroogeReq);
 		scrooge.setEventId(eventId);
 		Scrooge savedScrooge = scroogeRepository.save(scrooge);
 
