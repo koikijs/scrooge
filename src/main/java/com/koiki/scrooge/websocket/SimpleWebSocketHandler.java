@@ -34,15 +34,14 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 	//TODO send message (event data) to single connection after it is established
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-
 		String eventId = session.getUri().getQuery();
 
 		eventSessionPool.compute(eventId, (key, sessions) -> {
-
 			if (sessions == null) {
 				sessions = new CopyOnWriteArraySet<>();
 			}
 			sessions.add(session);
+
 
 			EventRes eventRes = eventRepository.findById(eventId)
 					.map(event -> {
@@ -59,6 +58,9 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
+
+
+			log.info("session is established, eventId: {}", eventId);
 
 			return sessions;
 		});
@@ -89,10 +91,10 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 	}
 
 	public void publishMessages(String eventId, Object object) throws Exception {
-		TextMessage message = new TextMessage(objectMapper.writeValueAsString(object));
-
+		//TextMessage message = new TextMessage(objectMapper.writeValueAsString(object));
 		if (!eventSessionPool.isEmpty()) {
 			for (WebSocketSession eventSession : eventSessionPool.get(eventId)) {
+				log.info("published!!");
 				eventSession.sendMessage(new TextMessage("{\"value\": \"yume success\"}"));
 			}
 		}

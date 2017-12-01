@@ -19,6 +19,7 @@ public class TestController {
 
 	@GetMapping("/{eventId}")
 	public ResponseEntity<?> get(@PathVariable String eventId) throws Exception {
+		log.info("I got request, eventId: {}", eventId);
 
 		simpleWebSocketHandler.publishMessages(eventId, null);
 
