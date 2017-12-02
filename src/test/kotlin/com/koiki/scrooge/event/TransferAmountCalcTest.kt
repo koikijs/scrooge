@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.koiki.scrooge.scrooge.Scrooge
 import org.junit.jupiter.api.Test
-import java.util.*
+import org.assertj.core.api.Assertions.*
 
 internal class TransferAmountCalcTest {
     val transferAmountCalc = TransferAmountCalc()
     val objectMapper = ObjectMapper()
 
     @Test
-    fun test() {
+    fun test_success() {
         val scrooges: List<Scrooge> = objectMapper.readValue("""
             [
                 {
@@ -60,6 +60,67 @@ internal class TransferAmountCalcTest {
                 }
             ]
         """)
-        transferAmountCalc.calculate(scrooges);
+
+        val expected: List<TransferAmount> = objectMapper.readValue("""
+            [
+                {
+                    "from": "sushi",
+                    "to": "ninja",
+                    "amount": 21151
+                },
+                {
+                    "from": "ino",
+                    "to": "f",
+                    "amount": 15280
+                },
+                {
+                    "from": "nab",
+                    "to": "f",
+                    "amount": 11863
+                },
+                {
+                    "from": "side",
+                    "to": "ninja",
+                    "amount": 11265
+                },
+                {
+                    "from": "f",
+                    "to": "ninja",
+                    "amount": 154
+                }
+            ]
+        """)
+        val actual = transferAmountCalc.calculate(scrooges)
+
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun test_success2() {
+        val scrooges: List<Scrooge> = objectMapper.readValue(""" [] """)
+
+        val expected: List<TransferAmount> = objectMapper.readValue(""" [] """)
+        val actual = transferAmountCalc.calculate(scrooges)
+
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun test_success3() {
+        val scrooges: List<Scrooge> = objectMapper.readValue("""
+            [
+                {
+                    "memberName": "side",
+                    "paidAmount": 9602
+                }
+            ]
+        """)
+
+        val expected: List<TransferAmount> = objectMapper.readValue("""
+            [ ]
+        """)
+        val actual = transferAmountCalc.calculate(scrooges)
+
+        assertThat(actual).isEqualTo(expected)
     }
 }

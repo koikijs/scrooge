@@ -31,6 +31,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class EventController {
 	private final EventRepository eventRepository;
 	private final ScroogeRepository scroogeRepository;
+	private final TransferAmountCalc transferAmountCalc;
 
 	@PostMapping
 	public ResponseEntity<?> postEvent(@Valid @RequestBody EventReq eventReq) {
@@ -51,6 +52,7 @@ public class EventController {
 				.map(event -> {
 					EventRes eventRes = new EventRes(event);
 					eventRes.setScrooges(scroogeRepository.findByEventId(event.getId()));
+					eventRes.setTransferAmounts(transferAmountCalc.calculate(eventRes.getScrooges()));
 					return ResponseEntity.ok().body(eventRes);
 				})
 				.orElse(ResponseEntity.notFound().build());

@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class EventRes extends Event {
 	private List<Scrooge> scrooges;
 	private List<Object> aggPaidAmount = new ArrayList<>();
+	private List<TransferAmount> transferAmounts;
 
 	/**
 	 * down cast

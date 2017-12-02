@@ -3,6 +3,8 @@ package com.koiki.scrooge.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.koiki.scrooge.event.EventRepository;
 import com.koiki.scrooge.event.EventRes;
+import com.koiki.scrooge.event.TransferAmount;
+import com.koiki.scrooge.event.TransferAmountCalc;
 import com.koiki.scrooge.scrooge.ScroogeRepository;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +30,7 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 	private final ObjectMapper objectMapper;
 	private final EventRepository eventRepository;
 	private final ScroogeRepository scroogeRepository;
+	private final TransferAmountCalc transferAmountCalc;
 
 	private ConcurrentHashMap<String, Set<WebSocketSession>> eventSessionPool = new ConcurrentHashMap<>();
 
@@ -47,6 +50,7 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 					.map(event -> {
 						EventRes er = new EventRes(event);
 						er.setScrooges(scroogeRepository.findByEventId(event.getId()));
+						er.setTransferAmounts(transferAmountCalc.calculate(er.getScrooges()));
 						return er;
 					})
 					.orElse(new EventRes());

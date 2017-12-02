@@ -70,6 +70,13 @@ class WebSocketEstablishedTests(
                     "updatedAt": "2017-12-02T16:52:45.52"
                 }
             ],
+            "transferAmounts": [
+                {
+                    "from": "Nabnab",
+                    "to": "Ninja",
+                    "amount": 150
+                }
+            ],
             "aggPaidAmount": []
         }
     """, EventRes::class.java)

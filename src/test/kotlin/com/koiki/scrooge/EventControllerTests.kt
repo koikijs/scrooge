@@ -72,6 +72,13 @@ class EventControllerTests(
                     "updatedAt": "2017-12-02T16:52:45.52"
                 }
             ],
+            "transferAmounts": [
+                {
+                    "from": "Nabnab",
+                    "to": "Ninja",
+                    "amount": 150
+                }
+            ],
             "aggPaidAmount": []
         }
     """, EventRes::class.java)
@@ -146,6 +153,31 @@ class EventControllerTests(
 
         val scrooge1 = restTemplate.getForObject(scrooge1Location, Scrooge::class.java)
         assertThat(scrooge1).isNotNull()
+    }
+
+    @Test
+    fun postEvent_getEvent_success() {
+        val eventLocation = restTemplate.postForLocation("/events", eventReq1)
+
+        val event = restTemplate.getForObject(eventLocation, EventRes::class.java)
+        assertThat(event.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(event.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(event.id).isNotNull()
+        assertThat(event)
+                .isEqualToIgnoringGivenFields(
+                        objectMapper.readValue("""
+                        {
+                            "name": "Koiki Camp",
+                            "id": "5a226c2d7c245e14f33fc5a8",
+                            "createdAt": "2017-12-02T16:52:45.52",
+                            "updatedAt": "2017-12-02T16:52:45.52",
+                            "scrooges": [ ],
+                            "transferAmounts": [ ],
+                            "aggPaidAmount": [ ]
+                        }
+                    """, EventRes::class.java),
+                        "id",
+                        "createdAt", "updatedAt")
     }
 
     @Test

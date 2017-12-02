@@ -17,7 +17,10 @@ import org.springframework.stereotype.Component;
 @ToString
 @Component
 public class TransferAmountCalc {
-	TransferAmount calculate(List<Scrooge> scrooges) {
+	public List<TransferAmount> calculate(List<Scrooge> scrooges) {
+		if (scrooges.isEmpty()) {
+			return new ArrayList<TransferAmount>();
+		}
 
 		BigDecimal totalAmount = scrooges.stream()
 				.map(Scrooge::getPaidAmount)
@@ -38,9 +41,10 @@ public class TransferAmountCalc {
 				.stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().subtract(averageAmount)));
 
-		calculate(payableAmountsPerMember, new ArrayList<TransferAmount>());
+		List<TransferAmount> transferAmounts = new ArrayList<>();
+		calculate(payableAmountsPerMember, transferAmounts);
 
-		return new TransferAmount();
+		return transferAmounts;
 	}
 
 	private void calculate(
@@ -60,15 +64,25 @@ public class TransferAmountCalc {
 					.min((a,b) -> b.getValue().subtract(a.getValue()).compareTo(BigDecimal.ZERO))
 					.get()
 					.getKey();
-			log.info("from: {} -> to: {}, amount: {}",
-					from,to,payableAmountsPerMember.get(from).multiply(BigDecimal.valueOf(-1)));
 
-			payableAmountsPerMember.put(to, payableAmountsPerMember.get(to).add(payableAmountsPerMember.get(from)));
+			//log.info("from: {} -> to: {}, amount: {}",
+			//		from,to,payableAmountsPerMember.get(from).multiply(BigDecimal.valueOf(-1)));
+
+			transferAmounts.add(
+					TransferAmount
+							.builder()
+							.from(from)
+							.to(to)
+							.amount(payableAmountsPerMember.get(from).multiply(BigDecimal.valueOf(-1)))
+							.build()
+			);
+
+			payableAmountsPerMember.put(
+					to,
+					payableAmountsPerMember.get(to).add(payableAmountsPerMember.get(from)));
 			payableAmountsPerMember.remove(from);
+
 			calculate(payableAmountsPerMember, transferAmounts);
-
-		} else {
-
 		}
 	}
 }
