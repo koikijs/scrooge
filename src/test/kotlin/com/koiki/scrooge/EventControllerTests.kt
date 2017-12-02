@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.koiki.scrooge.event.EventReq
 import com.koiki.scrooge.event.EventRes
+import com.koiki.scrooge.scrooge.Scrooge
 import com.koiki.scrooge.scrooge.ScroogeReq
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -108,15 +109,15 @@ class EventControllerTests(
 
     @Test
     fun postEventAndScrooges_getEvent() {
-        val location = restTemplate.postForLocation("/events", eventReq1)
+        val eventLocation = restTemplate.postForLocation("/events", eventReq1)
 
-        val compiledUri = location.toString().split(Pattern.compile("/"))
+        val compiledUri = eventLocation.toString().split(Pattern.compile("/"))
         val id = compiledUri[compiledUri.size - 1]
 
-        restTemplate.postForLocation("/events/$id/scrooges", scroogeReq1)
+        var scrooge1Location = restTemplate.postForLocation("/events/$id/scrooges", scroogeReq1)
         restTemplate.postForLocation("/events/$id/scrooges", scroogeReq2)
 
-        val event = restTemplate.getForObject(location, EventRes::class.java)
+        val event = restTemplate.getForObject(eventLocation, EventRes::class.java)
         assertThat(event.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
         assertThat(event.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
         assertThat(event.id).isNotNull()
@@ -138,6 +139,9 @@ class EventControllerTests(
             assertThat(s.id).isNotNull()
             assertThat(s.eventId).isNotNull()
         })
+
+        val scrooge1 = restTemplate.getForObject(scrooge1Location, Scrooge::class.java)
+        assertThat(scrooge1).isNotNull()
     }
 
 

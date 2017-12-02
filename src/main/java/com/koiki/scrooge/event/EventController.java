@@ -4,6 +4,7 @@ import com.koiki.scrooge.scrooge.Scrooge;
 import com.koiki.scrooge.scrooge.ScroogeRepository;
 import com.koiki.scrooge.scrooge.ScroogeReq;
 import java.net.URI;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,10 +71,24 @@ public class EventController {
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequest()
 				.path("/{scroogeId}")
-				.buildAndExpand(eventId, savedScrooge.getId())
+				.buildAndExpand(savedScrooge.getId())
 				.toUri();
 
 		return ResponseEntity.created(location).build();
 	}
-}
 
+	@GetMapping("/{eventId}/scrooges/{scroogeId}")
+	public ResponseEntity<?> getScrooge(
+			@PathVariable String eventId,
+			@PathVariable String scroogeId) {
+
+		Optional<Scrooge> scrooge = scroogeRepository.findById(scroogeId);
+		if (!scrooge.isPresent()) {
+			return ResponseEntity.notFound().build();
+		} else if (!scrooge.get().getEventId().equals(eventId)) {
+			return ResponseEntity.notFound().build();
+		} else {
+			return ResponseEntity.ok().body(scrooge.get());
+		}
+	}
+}
