@@ -14,7 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.client.RestClientException
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.client.StandardWebSocketClient
 import reactor.core.publisher.ReplayProcessor
@@ -108,13 +112,13 @@ class EventControllerTests(
         }
 
     @Test
-    fun postEventAndScrooges_getEvent() {
+    fun postEventAndScrooges_getEvent_success() {
         val eventLocation = restTemplate.postForLocation("/events", eventReq1)
 
         val compiledUri = eventLocation.toString().split(Pattern.compile("/"))
         val id = compiledUri[compiledUri.size - 1]
 
-        var scrooge1Location = restTemplate.postForLocation("/events/$id/scrooges", scroogeReq1)
+        val scrooge1Location = restTemplate.postForLocation("/events/$id/scrooges", scroogeReq1)
         restTemplate.postForLocation("/events/$id/scrooges", scroogeReq2)
 
         val event = restTemplate.getForObject(eventLocation, EventRes::class.java)
@@ -144,6 +148,23 @@ class EventControllerTests(
         assertThat(scrooge1).isNotNull()
     }
 
+    @Test
+    fun deleteScrooge_success() {
+        val eventLocation = restTemplate.postForLocation("/events", eventReq1)
+
+        val compiledUri = eventLocation.toString().split(Pattern.compile("/"))
+        val id = compiledUri[compiledUri.size - 1]
+
+        val scroogeLocation = restTemplate.postForLocation("/events/$id/scrooges", scroogeReq1)
+
+        restTemplate.getForObject(scroogeLocation, Scrooge::class.java)
+        restTemplate.delete(scroogeLocation)
+        try {
+            restTemplate.getForObject(scroogeLocation, Scrooge::class.java)
+        } catch (e: HttpClientErrorException) {
+            assertThat(e.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        }
+    }
 
     //@Test
     fun test() {
