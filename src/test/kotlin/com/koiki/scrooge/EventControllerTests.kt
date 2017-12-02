@@ -23,17 +23,14 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.regex.Pattern
 
-/**
- * https://github.com/bclozel/webflux-workshop/blob/master/trading-service/src/test/java/io/spring/workshop/tradingservice/websocket/EchoWebSocketHandlerTests.java
- */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
-class WebSocketEstablishedTests(
+class EventControllerTests(
         @LocalServerPort port: Int,
         @Autowired builder: RestTemplateBuilder
 ) {
     companion object{
-        private val log = LoggerFactory.getLogger(WebSocketEstablishedTests::class.java)
+        private val log = LoggerFactory.getLogger(EventControllerTests::class.java)
     }
 
     private val restTemplate = builder
@@ -110,7 +107,42 @@ class WebSocketEstablishedTests(
         }
 
     @Test
-    fun websocketEstablished() {
+    fun postEventAndScrooges_getEvent() {
+        val location = restTemplate.postForLocation("/events", eventReq1)
+
+        val compiledUri = location.toString().split(Pattern.compile("/"))
+        val id = compiledUri[compiledUri.size - 1]
+
+        restTemplate.postForLocation("/events/$id/scrooges", scroogeReq1)
+        restTemplate.postForLocation("/events/$id/scrooges", scroogeReq2)
+
+        val event = restTemplate.getForObject(location, EventRes::class.java)
+        assertThat(event.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(event.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(event.id).isNotNull()
+        assertThat(event)
+                .isEqualToIgnoringGivenFields(
+                        expectedWsMessage,
+                        "id",
+                        "scrooges", "createdAt", "updatedAt")
+
+        assertThat(event.scrooges)
+                .usingElementComparatorIgnoringFields("id",
+                        "eventId", "createdAt", "updatedAt")
+                .isEqualTo(expectedWsMessage.scrooges)
+
+        event.scrooges.stream().forEach({
+            s ->
+            assertThat(s.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
+            assertThat(s.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
+            assertThat(s.id).isNotNull()
+            assertThat(s.eventId).isNotNull()
+        })
+    }
+
+
+    //@Test
+    fun test() {
         val scroogeId = this.prepare
 
         val numberOfReceivedMessages: Long = 1
