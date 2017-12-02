@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -89,6 +90,22 @@ public class EventController {
 			return ResponseEntity.notFound().build();
 		} else {
 			return ResponseEntity.ok().body(scrooge.get());
+		}
+	}
+
+	@DeleteMapping("/{eventId}/scrooges/{scroogeId}")
+	public ResponseEntity<?> deleteScrooge(
+			@PathVariable String eventId,
+			@PathVariable String scroogeId) {
+
+		Optional<Scrooge> scrooge = scroogeRepository.findById(scroogeId);
+		if (!scrooge.isPresent()) {
+			return ResponseEntity.notFound().build();
+		} else if (!scrooge.get().getEventId().equals(eventId)) {
+			return ResponseEntity.notFound().build();
+		} else {
+			scroogeRepository.deleteById(scroogeId);
+			return ResponseEntity.noContent().build();
 		}
 	}
 }
