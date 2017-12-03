@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -35,7 +36,6 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 
 	private ConcurrentHashMap<String, Set<WebSocketSession>> eventSessionPool = new ConcurrentHashMap<>();
 
-	//TODO send message (event data) to single connection after it is established
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		String eventId = session.getUri().getQuery();
@@ -46,20 +46,7 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 			}
 			sessions.add(session);
 
-
-			EventRes eventRes = scroogeService.makeScroogeReq(eventId)
-					.orElse(new EventRes());
-			try {
-				String message = objectMapper.writeValueAsString(eventRes);
-
-				session.sendMessage(new TextMessage(message));
-
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-
-
-			log.info("session is established, eventId: {}", eventId);
+			singleCastBySession(session, eventId);
 
 			return sessions;
 		});
@@ -88,6 +75,19 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 			return sessions;
 		});
 	}
+
+	public void singleCastBySession(WebSocketSession session, String eventId) {
+		EventRes eventRes = scroogeService.makeScroogeReq(eventId)
+				.orElse(new EventRes());
+
+		try {
+			String message = objectMapper.writeValueAsString(eventRes);
+			session.sendMessage(new TextMessage(message));
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+
 
 	public void publishMessages(String eventId, Object object) throws Exception {
 		//TextMessage message = new TextMessage(objectMapper.writeValueAsString(object));
