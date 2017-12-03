@@ -3,8 +3,11 @@ package com.koiki.scrooge.event;
 import com.koiki.scrooge.scrooge.Scrooge;
 import com.koiki.scrooge.scrooge.ScroogeRepository;
 import com.koiki.scrooge.scrooge.ScroogeReq;
+import com.sun.java.swing.plaf.windows.WindowsTreeUI;
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -107,6 +111,26 @@ public class EventController {
 			return ResponseEntity.notFound().build();
 		} else {
 			scroogeRepository.deleteById(scroogeId);
+			return ResponseEntity.noContent().build();
+		}
+	}
+
+	@DeleteMapping("/{eventId}/scrooges")
+	public ResponseEntity<?> deleteByNameScrooge(
+			@PathVariable String eventId,
+			@RequestParam List<String> memberNames) {
+
+		List<Scrooge> scrooges = memberNames.stream()
+				.map(memberName -> scroogeRepository.findByEventIdAndMemberName(eventId, memberName))
+				.flatMap(list -> list.stream())
+				.collect(Collectors.toList());
+
+		if (scrooges.isEmpty()) {
+			return ResponseEntity.notFound().build();
+
+		} else {
+			scrooges.stream()
+					.forEach(scroogeRepository::delete);
 			return ResponseEntity.noContent().build();
 		}
 	}

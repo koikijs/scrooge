@@ -198,6 +198,77 @@ class EventControllerTests(
         }
     }
 
+    @Test
+    fun deleteScroogeBulk_success() {
+        val eventLocation = restTemplate.postForLocation("/events", eventReq1)
+
+        val compiledUri = eventLocation.toString().split(Pattern.compile("/"))
+        val id = compiledUri[compiledUri.size - 1]
+
+        val scroogeNab1Location = restTemplate.postForLocation("/events/$id/scrooges",
+                objectMapper.readValue("""
+                    {
+                        "memberName": "Nabnab",
+                        "paidAmount": 200,
+                        "forWhat": "xxx"
+                    }
+                """, ScroogeReq::class.java))
+
+        val scroogeNab2Location = restTemplate.postForLocation("/events/$id/scrooges",
+                objectMapper.readValue("""
+                    {
+                        "memberName": "Nabnab",
+                        "paidAmount": 400,
+                        "forWhat": "xxx"
+                    }
+                """, ScroogeReq::class.java))
+
+        val scroogeNinja1Location = restTemplate.postForLocation("/events/$id/scrooges",
+                objectMapper.readValue("""
+                    {
+                        "memberName": "Ninja",
+                        "paidAmount": 300,
+                        "forWhat": "xxx"
+                    }
+                """, ScroogeReq::class.java))
+
+        val scroogeF1Location = restTemplate.postForLocation("/events/$id/scrooges",
+                objectMapper.readValue("""
+                    {
+                        "memberName": "F",
+                        "paidAmount": 800,
+                        "forWhat": "xxx"
+                    }
+                """, ScroogeReq::class.java))
+
+        restTemplate.getForObject(scroogeNab1Location, Scrooge::class.java)
+        restTemplate.getForObject(scroogeNab2Location, Scrooge::class.java)
+        restTemplate.getForObject(scroogeNinja1Location, Scrooge::class.java)
+        restTemplate.getForObject(scroogeF1Location, Scrooge::class.java)
+
+        restTemplate.delete("/events/$id/scrooges?memberNames=Nabnab,Ninja")
+
+        try {
+            restTemplate.getForObject(scroogeNab1Location, Scrooge::class.java)
+        } catch (e: HttpClientErrorException) {
+            assertThat(e.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        }
+
+        try {
+            restTemplate.getForObject(scroogeNab2Location, Scrooge::class.java)
+        } catch (e: HttpClientErrorException) {
+            assertThat(e.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        }
+
+        try {
+            restTemplate.getForObject(scroogeNinja1Location, Scrooge::class.java)
+        } catch (e: HttpClientErrorException) {
+            assertThat(e.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        }
+
+        restTemplate.getForObject(scroogeF1Location, Scrooge::class.java)
+    }
+
     //@Test
     fun test() {
         val scroogeId = this.prepare

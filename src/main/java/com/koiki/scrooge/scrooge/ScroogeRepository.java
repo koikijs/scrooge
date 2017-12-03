@@ -6,4 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ScroogeRepository extends MongoRepository<Scrooge, String> {
 	List<Scrooge> findByEventId(String eventId);
+	List<Scrooge> findByEventIdAndMemberName(String eventId, String memberName);
 }

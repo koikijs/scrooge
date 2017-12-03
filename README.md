@@ -97,5 +97,8 @@ response
 ### DELETE /events/{eventId}/scrooges/{scroogeId}
 No request body
 
+### DELETE /events/{eventId}/scrooges/?memberNames={memberName},{memberName}
+No request body
+
 ## WebSocket
 This API sends broadcast to all users who have same eventId when resource is updated.
