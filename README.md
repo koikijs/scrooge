@@ -97,7 +97,7 @@ response
 ### DELETE /events/{eventId}/scrooges/{scroogeId}
 No request body
 
-### DELETE /events/{eventId}/scrooges/?memberNames={memberName},{memberName}
+### DELETE /events/{eventId}/scrooges?memberNames={memberName},{memberName}
 No request body
 
 ## WebSocket
