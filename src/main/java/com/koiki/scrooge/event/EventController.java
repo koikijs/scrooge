@@ -3,6 +3,7 @@ package com.koiki.scrooge.event;
 import com.koiki.scrooge.scrooge.Scrooge;
 import com.koiki.scrooge.scrooge.ScroogeRepository;
 import com.koiki.scrooge.scrooge.ScroogeReq;
+import com.koiki.scrooge.websocket.SimpleWebSocketHandler;
 import com.sun.java.swing.plaf.windows.WindowsTreeUI;
 import java.net.URI;
 import java.util.List;
@@ -36,6 +37,7 @@ public class EventController {
 	private final EventRepository eventRepository;
 	private final ScroogeRepository scroogeRepository;
 	private final ScroogeService scroogeService;
+	private final SimpleWebSocketHandler simpleWebSocketHandler;
 
 	@PostMapping
 	public ResponseEntity<?> postEvent(@Valid @RequestBody EventReq eventReq) {
@@ -46,6 +48,8 @@ public class EventController {
 				.path("/{id}")
 				.buildAndExpand(savedEvent.getId())
 				.toUri();
+
+		// don't multi cast here because client does not know eventId yet
 
 		return ResponseEntity.created(location).build();
 	}
@@ -76,6 +80,8 @@ public class EventController {
 				.buildAndExpand(savedScrooge.getId())
 				.toUri();
 
+		simpleWebSocketHandler.multiCastByEventId(eventId);
+
 		return ResponseEntity.created(location).build();
 	}
 
@@ -90,6 +96,7 @@ public class EventController {
 		} else if (!scrooge.get().getEventId().equals(eventId)) {
 			return ResponseEntity.notFound().build();
 		} else {
+			simpleWebSocketHandler.multiCastByEventId(eventId);
 			return ResponseEntity.ok().body(scrooge.get());
 		}
 	}
@@ -106,6 +113,7 @@ public class EventController {
 			return ResponseEntity.notFound().build();
 		} else {
 			scroogeRepository.deleteById(scroogeId);
+			simpleWebSocketHandler.multiCastByEventId(eventId);
 			return ResponseEntity.noContent().build();
 		}
 	}
@@ -124,6 +132,7 @@ public class EventController {
 			return ResponseEntity.notFound().build();
 
 		} else {
+			simpleWebSocketHandler.multiCastByEventId(eventId);
 			scrooges.stream()
 					.forEach(scroogeRepository::delete);
 			return ResponseEntity.noContent().build();

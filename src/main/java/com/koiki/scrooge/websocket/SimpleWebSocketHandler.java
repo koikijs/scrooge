@@ -4,15 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.koiki.scrooge.event.EventRepository;
 import com.koiki.scrooge.event.EventRes;
 import com.koiki.scrooge.event.ScroogeService;
-import com.koiki.scrooge.event.TransferAmount;
-import com.koiki.scrooge.event.TransferAmountCalc;
 import com.koiki.scrooge.scrooge.ScroogeRepository;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -50,6 +47,8 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 
 			return sessions;
 		});
+
+		log.info("size of eventSessionPool: {}", eventSessionPool.size());
 	}
 
 	/**
@@ -62,7 +61,7 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-
+		log.info("session closed");
 		String eventId = session.getUri().getQuery();
 
 		eventSessionPool.compute(eventId, (key, sessions) -> {
@@ -88,14 +87,21 @@ public class SimpleWebSocketHandler extends TextWebSocketHandler {
 		}
 	}
 
+	public void multiCastByEventId(String eventId) {
+		EventRes eventRes = scroogeService.makeScroogeReq(eventId)
+				.orElse(new EventRes());
 
-	public void publishMessages(String eventId, Object object) throws Exception {
-		//TextMessage message = new TextMessage(objectMapper.writeValueAsString(object));
-		if (!eventSessionPool.isEmpty()) {
-			for (WebSocketSession eventSession : eventSessionPool.get(eventId)) {
-				log.info("published!!");
-				eventSession.sendMessage(new TextMessage("{\"value\": \"yume success\"}"));
+		try {
+			String message = objectMapper.writeValueAsString(eventRes);
+
+			if (!eventSessionPool.isEmpty()) {
+				for (WebSocketSession eventSession : eventSessionPool.get(eventId)) {
+					eventSession.sendMessage(new TextMessage(message));
+					log.info("multi cast!");
+				}
 			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 	}
 

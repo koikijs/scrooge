@@ -21,6 +21,7 @@ import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestClientException
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.client.StandardWebSocketClient
+import reactor.core.publisher.Mono
 import reactor.core.publisher.ReplayProcessor
 import reactor.core.publisher.toMono
 import java.net.URI
@@ -270,46 +271,114 @@ class EventControllerTests(
     }
 
     //@Test
-    fun test() {
-        val scroogeId = this.prepare
+    fun receivingMultiCastTest() {
+        val location = restTemplate.postForLocation("/events", eventReq1)
 
-        val numberOfReceivedMessages: Long = 1
+        val compiledUri = location.toString().split(Pattern.compile("/"))
+        val scroogeId = compiledUri[compiledUri.size - 1]
+
+        val numberOfReceivedMessages: Long = 2
 
         val output: ReplayProcessor<String> = ReplayProcessor.create(numberOfReceivedMessages.toInt())
 
-        StandardWebSocketClient().execute(URI(webSocketUri + scroogeId)) { session ->
-            session
+        val mono = StandardWebSocketClient().execute(URI(webSocketUri + scroogeId)) {session ->
+            log.info("session start!")
+            val mono: Mono<Void> = session
                     .toMono()
                     .thenMany(session.receive().take(numberOfReceivedMessages)
                             .map(WebSocketMessage::getPayloadAsText))
                     .subscribeWith(output)
                     .then()
-        }.block(Duration.ofMillis(5000))
+            log.info("session end!")
+            mono
+        }
 
-        val websocketResult: EventRes = objectMapper.readValue(
-                output.collectList().block().get(0),
+        log.info("1st blocking")
+        mono.block(Duration.ofMillis(5000))
+
+
+
+        log.info("before 1st fetching websocket response")
+        val websocketResult1: EventRes = objectMapper.readValue(
+                output.collectList().block(Duration.ofMillis(5000)).get(0),
+                EventRes::class.java)
+        log.info("after 1st fetching websocket response")
+
+        assertThat(websocketResult1.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(websocketResult1.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(websocketResult1.id).isNotNull()
+        assertThat(websocketResult1)
+                .isEqualToIgnoringGivenFields(
+                        objectMapper.readValue("""
+                            {
+                                "name": "Koiki Camp",
+                                "id": "5a226c2d7c245e14f33fc5a8",
+                                "createdAt": "2017-12-02T16:52:45.52",
+                                "updatedAt": "2017-12-02T16:52:45.52",
+                                "transferAmounts": [],
+                                "aggPaidAmount": [],
+                                "scrooges": []
+                            }
+                        """, EventRes::class.java),
+                        "id",
+                        "createdAt", "updatedAt")
+
+
+        log.info("before posting scrooge")
+        restTemplate.postForLocation("/events/$scroogeId/scrooges", scroogeReq1)
+
+        val websocketResult2: EventRes = objectMapper.readValue(
+                output.collectList().block(Duration.ofMillis(5000)).get(1),
                 EventRes::class.java)
 
-        assertThat(websocketResult.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
-        assertThat(websocketResult.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
-        assertThat(websocketResult.id).isNotNull()
-        assertThat(websocketResult)
+        assertThat(websocketResult2.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(websocketResult2.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(websocketResult2.id).isNotNull()
+        assertThat(websocketResult2)
                 .isEqualToIgnoringGivenFields(
-                        expectedWsMessage,
+                        objectMapper.readValue("""
+                            {
+                                "name": "Koiki Camp",
+                                "id": "5a226c2d7c245e14f33fc5a8",
+                                "createdAt": "2017-12-02T16:52:45.52",
+                                "updatedAt": "2017-12-02T16:52:45.52",
+                                "transferAmounts": [],
+                                "aggPaidAmount": [],
+                                "scrooges": [
+                                    {
+                                        "memberName": "Nabnab",
+                                        "paidAmount": 200,
+                                        "forWhat": "rent-a-car",
+                                        "id": "5a226c2d7c245e14f33fc5a8",
+                                        "eventId": "5a226c2d7c245e14f33fc5a8",
+                                        "createdAt": "2017-12-02T16:52:45.52",
+                                        "updatedAt": "2017-12-02T16:52:45.52"
+                                    }
+                                ]
+                            }
+                        """, EventRes::class.java),
                         "id",
-                        "scrooges", "createdAt", "updatedAt")
+                        "createdAt", "updatedAt")
 
-        assertThat(websocketResult.scrooges)
+        assertThat(websocketResult2.scrooges)
                 .usingElementComparatorIgnoringFields("id",
                         "eventId", "createdAt", "updatedAt")
-                .isEqualTo(expectedWsMessage.scrooges)
+                .isEqualTo(objectMapper.readValue("""
+                        {
+                            "memberName": "Nabnab",
+                            "paidAmount": 200,
+                            "forWhat": "rent-a-car"
+                        }
+                    """, ScroogeReq::class.java))
 
-        websocketResult.scrooges.stream().forEach({
+        websocketResult2.scrooges.stream().forEach({
             s ->
             assertThat(s.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
             assertThat(s.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
             assertThat(s.id).isNotNull()
             assertThat(s.eventId).isNotNull()
         })
+
+        log.info("end ot UT")
     }
 }
