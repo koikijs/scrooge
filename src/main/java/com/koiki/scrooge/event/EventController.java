@@ -132,9 +132,10 @@ public class EventController {
 			return ResponseEntity.notFound().build();
 
 		} else {
-			simpleWebSocketHandler.multiCastByEventId(eventId);
 			scrooges.stream()
 					.forEach(scroogeRepository::delete);
+
+			simpleWebSocketHandler.multiCastByEventId(eventId);
 			return ResponseEntity.noContent().build();
 		}
 	}
