@@ -29,7 +29,7 @@ request
 ```
 {
     "name": "Koiki Camp",    ... (required)
-    "currency": "JPY"        ... (required)
+    "transferCurrency": "JPY"        ... (required)
 }
 ```
 
@@ -37,7 +37,7 @@ request
 request
 ```
 {
-    "currency": "JPY"        ... (optional)
+    "transferCurrency": "JPY"        ... (optional)
 }
 ```
 
@@ -49,7 +49,7 @@ response
     "id": "5a226c2d7c245e14f33fc5a8",
     "createdAt": "2017-12-02T16:52:45.52",
     "updatedAt": "2017-12-02T16:52:45.52",
-    "currency": "JPY",
+    "transferCurrency": "JPY",
     "scrooges": [
         {
             "memberName": "Nabnab",
@@ -58,7 +58,8 @@ response
             "id": "5a226c2d7c245e14f33fc5a8",
             "eventId": "5a226c2d7c245e14f33fc5a8",
             "createdAt": "2017-12-02T16:52:45.52",
-            "updatedAt": "2017-12-02T16:52:45.52"
+            "updatedAt": "2017-12-02T16:52:45.52",
+            "currency": "JPY"
         },
         {
             "memberName": "Ninja",
@@ -67,7 +68,8 @@ response
             "id": "5a226c2d7c245e14f33fc5a8",
             "eventId": "5a226c2d7c245e14f33fc5a8",
             "createdAt": "2017-12-02T16:52:45.52",
-            "updatedAt": "2017-12-02T16:52:45.52"
+            "updatedAt": "2017-12-02T16:52:45.52",
+            "currency": "JPY"
         }
     ],
     "transferAmounts": [
