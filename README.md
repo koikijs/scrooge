@@ -28,7 +28,16 @@
 request
 ```
 {
-    "name": "Koiki Camp"    ... (required)
+    "name": "Koiki Camp",    ... (required)
+    "transferCurrency": "JPY"        ... (required)
+}
+```
+
+### PATCH /events
+request
+```
+{
+    "transferCurrency": "JPY"        ... (optional)
 }
 ```
 
@@ -40,6 +49,7 @@ response
     "id": "5a226c2d7c245e14f33fc5a8",
     "createdAt": "2017-12-02T16:52:45.52",
     "updatedAt": "2017-12-02T16:52:45.52",
+    "transferCurrency": "JPY",
     "scrooges": [
         {
             "memberName": "Nabnab",
@@ -48,7 +58,8 @@ response
             "id": "5a226c2d7c245e14f33fc5a8",
             "eventId": "5a226c2d7c245e14f33fc5a8",
             "createdAt": "2017-12-02T16:52:45.52",
-            "updatedAt": "2017-12-02T16:52:45.52"
+            "updatedAt": "2017-12-02T16:52:45.52",
+            "currency": "JPY"
         },
         {
             "memberName": "Ninja",
@@ -57,7 +68,8 @@ response
             "id": "5a226c2d7c245e14f33fc5a8",
             "eventId": "5a226c2d7c245e14f33fc5a8",
             "createdAt": "2017-12-02T16:52:45.52",
-            "updatedAt": "2017-12-02T16:52:45.52"
+            "updatedAt": "2017-12-02T16:52:45.52",
+            "currency": "JPY"
         }
     ],
     "transferAmounts": [
@@ -77,6 +89,7 @@ request
 {
     "memberName": "Nabnab", ... (required)
     "paidAmount": 200,      ... (required)
+    "currency": "JPY",      ... (required)
     "forWhat": "rent-a-car" ... (optional)
 }
 ```
@@ -86,6 +99,7 @@ response
 {
     "memberName": "Nabnab",
     "paidAmount": 200,
+    "currency": "JPY",
     "forWhat": "rent-a-car",
     "id": "5a226c2d7c245e14f33fc5a8",
     "eventId": "5a226c2d7c245e14f33fc5a8",
