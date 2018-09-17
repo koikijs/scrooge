@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document
-@NoArgsConstructor
 public class Event extends EventReq {
 	@Id
 	private String id;
@@ -20,6 +19,10 @@ public class Event extends EventReq {
 	private LocalDateTime createdAt;
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
+
+	public Event() {
+		super();
+	}
 
 	/**
 	 * down cast

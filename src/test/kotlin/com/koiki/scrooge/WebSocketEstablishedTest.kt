@@ -28,12 +28,12 @@ import java.util.regex.Pattern
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
-class WebSocketEstablishedTests(
+class WebSocketEstablishedTest(
         @LocalServerPort port: Int,
         @Autowired builder: RestTemplateBuilder
 ) {
     companion object{
-        private val log = LoggerFactory.getLogger(WebSocketEstablishedTests::class.java)
+        private val log = LoggerFactory.getLogger(WebSocketEstablishedTest::class.java)
     }
 
     private val restTemplate = builder
@@ -134,7 +134,7 @@ class WebSocketEstablishedTests(
         }.block(Duration.ofMillis(5000))
 
         val websocketResult: EventRes = objectMapper.readValue(
-                output.collectList().block().get(0),
+                output.collectList().block()?.get(0),
                 EventRes::class.java)
 
         assertThat(websocketResult.createdAt).isBeforeOrEqualTo(LocalDateTime.now())

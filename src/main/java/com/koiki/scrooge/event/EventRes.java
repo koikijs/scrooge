@@ -8,11 +8,14 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@NoArgsConstructor
 public class EventRes extends Event {
 	private List<Scrooge> scrooges;
 	private List<Object> aggPaidAmount = new ArrayList<>();
 	private List<TransferAmount> transferAmounts;
+
+	public EventRes() {
+		super();
+	}
 
 	/**
 	 * down cast

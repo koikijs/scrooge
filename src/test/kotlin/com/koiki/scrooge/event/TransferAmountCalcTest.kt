@@ -1,14 +1,15 @@
 package com.koiki.scrooge.event
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.koiki.scrooge.scrooge.Scrooge
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.assertj.core.api.Assertions.*
 
 internal class TransferAmountCalcTest {
     val transferAmountCalc = TransferAmountCalc()
-    val objectMapper = ObjectMapper()
+    val objectMapper = ObjectMapper().registerModule(KotlinModule())
 
     @Test
     fun test_success() {

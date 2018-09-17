@@ -17,8 +17,6 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpStatusCodeException
-import org.springframework.web.client.RestClientException
 import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.client.StandardWebSocketClient
 import reactor.core.publisher.Mono
@@ -31,12 +29,12 @@ import java.util.regex.Pattern
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
-class EventControllerTests(
+class EventControllerTest(
         @LocalServerPort port: Int,
         @Autowired builder: RestTemplateBuilder
 ) {
     companion object{
-        private val log = LoggerFactory.getLogger(EventControllerTests::class.java)
+        private val log = LoggerFactory.getLogger(EventControllerTest::class.java)
     }
 
     private val restTemplate = builder
@@ -129,22 +127,22 @@ class EventControllerTests(
         val scrooge1Location = restTemplate.postForLocation("/events/$id/scrooges", scroogeReq1)
         restTemplate.postForLocation("/events/$id/scrooges", scroogeReq2)
 
-        val event = restTemplate.getForObject(eventLocation, EventRes::class.java)
-        assertThat(event.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
-        assertThat(event.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
-        assertThat(event.id).isNotNull()
+        val event = restTemplate.getForObject(eventLocation!!, EventRes::class.java)
+        assertThat(event?.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(event?.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(event?.id).isNotNull()
         assertThat(event)
                 .isEqualToIgnoringGivenFields(
                         expectedWsMessage,
                         "id",
                         "scrooges", "createdAt", "updatedAt")
 
-        assertThat(event.scrooges)
+        assertThat(event?.scrooges)
                 .usingElementComparatorIgnoringFields("id",
                         "eventId", "createdAt", "updatedAt")
                 .isEqualTo(expectedWsMessage.scrooges)
 
-        event.scrooges.stream().forEach({
+        event?.scrooges?.stream()?.forEach({
             s ->
             assertThat(s.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
             assertThat(s.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
@@ -152,7 +150,7 @@ class EventControllerTests(
             assertThat(s.eventId).isNotNull()
         })
 
-        val scrooge1 = restTemplate.getForObject(scrooge1Location, Scrooge::class.java)
+        val scrooge1 = restTemplate.getForObject(scrooge1Location!!, Scrooge::class.java)
         assertThat(scrooge1).isNotNull()
     }
 
@@ -160,10 +158,10 @@ class EventControllerTests(
     fun postEvent_getEvent_success() {
         val eventLocation = restTemplate.postForLocation("/events", eventReq1)
 
-        val event = restTemplate.getForObject(eventLocation, EventRes::class.java)
-        assertThat(event.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
-        assertThat(event.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
-        assertThat(event.id).isNotNull()
+        val event = restTemplate.getForObject(eventLocation!!, EventRes::class.java)
+        assertThat(event?.createdAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(event?.updatedAt).isBeforeOrEqualTo(LocalDateTime.now())
+        assertThat(event?.id).isNotNull()
         assertThat(event)
                 .isEqualToIgnoringGivenFields(
                         objectMapper.readValue("""
@@ -190,7 +188,7 @@ class EventControllerTests(
 
         val scroogeLocation = restTemplate.postForLocation("/events/$id/scrooges", scroogeReq1)
 
-        restTemplate.getForObject(scroogeLocation, Scrooge::class.java)
+        restTemplate.getForObject(scroogeLocation!!, Scrooge::class.java)
         restTemplate.delete(scroogeLocation)
         try {
             restTemplate.getForObject(scroogeLocation, Scrooge::class.java)
@@ -242,10 +240,10 @@ class EventControllerTests(
                     }
                 """, ScroogeReq::class.java))
 
-        restTemplate.getForObject(scroogeNab1Location, Scrooge::class.java)
-        restTemplate.getForObject(scroogeNab2Location, Scrooge::class.java)
-        restTemplate.getForObject(scroogeNinja1Location, Scrooge::class.java)
-        restTemplate.getForObject(scroogeF1Location, Scrooge::class.java)
+        restTemplate.getForObject(scroogeNab1Location!!, Scrooge::class.java)
+        restTemplate.getForObject(scroogeNab2Location!!, Scrooge::class.java)
+        restTemplate.getForObject(scroogeNinja1Location!!, Scrooge::class.java)
+        restTemplate.getForObject(scroogeF1Location!!, Scrooge::class.java)
 
         restTemplate.delete("/events/$id/scrooges?memberNames=Nabnab,Ninja")
 
@@ -300,7 +298,7 @@ class EventControllerTests(
 
         log.info("before 1st fetching websocket response")
         val websocketResult1: EventRes = objectMapper.readValue(
-                output.collectList().block(Duration.ofMillis(5000)).get(0),
+                output.collectList().block(Duration.ofMillis(5000))?.get(0),
                 EventRes::class.java)
         log.info("after 1st fetching websocket response")
 
@@ -328,7 +326,7 @@ class EventControllerTests(
         restTemplate.postForLocation("/events/$scroogeId/scrooges", scroogeReq1)
 
         val websocketResult2: EventRes = objectMapper.readValue(
-                output.collectList().block(Duration.ofMillis(5000)).get(1),
+                output.collectList().block(Duration.ofMillis(5000))?.get(1),
                 EventRes::class.java)
 
         assertThat(websocketResult2.createdAt).isBeforeOrEqualTo(LocalDateTime.now())

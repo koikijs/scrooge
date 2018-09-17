@@ -1,10 +1,7 @@
 package com.koiki.scrooge.scrooge;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -12,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document
-@NoArgsConstructor
 public class Scrooge extends ScroogeReq {
 	@Id
 	private String id;
