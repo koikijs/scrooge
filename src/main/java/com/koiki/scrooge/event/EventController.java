@@ -29,7 +29,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/events")
 @RequiredArgsConstructor
 @CrossOrigin(
-		origins = "https://kyoden.herokuapp.com",
+		origins = "https://kyoden.now.sh",
 		allowedHeaders = {"Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location"},
 		exposedHeaders = {"Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location"},
 		allowCredentials = "true"
