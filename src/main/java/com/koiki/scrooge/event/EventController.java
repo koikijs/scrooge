@@ -64,7 +64,7 @@ public class EventController {
 
 	@PostMapping("/{eventId}/scrooges")
 	public ResponseEntity<?> postScrooge(
-			@RequestBody ScroogeReq scroogeReq,
+			@Valid @RequestBody ScroogeReq scroogeReq,
 			@PathVariable String eventId) {
 
 		if (!eventRepository.findById(eventId).isPresent()) {

@@ -4,6 +4,9 @@ import java.util.Arrays;
 
 public enum ErrorCode {
 	ERROR0001("event name should not be empty"),
+	ERROR0002("memberName should not be null"),
+	ERROR0003("paidAmount should not be null"),
+	ERROR0004("forWhat should not be null"),
 	UNKNOWN("unknown error happens")
 	;
 
