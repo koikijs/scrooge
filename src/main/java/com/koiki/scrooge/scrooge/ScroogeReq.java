@@ -15,6 +15,5 @@ public class ScroogeReq {
 	private String memberName;
 	@NotNull(message = "ERROR0003")
 	private BigDecimal paidAmount;
-	@NotNull(message = "ERROR0004")
 	private String forWhat;
 }
